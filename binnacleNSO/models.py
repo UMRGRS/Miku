@@ -1,10 +1,15 @@
 import os
+
 from uuid import uuid4
-import random as rnd
+
+from random import randint
+
+from datetime import date
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.deconstruct import deconstructible
+from django_resized import ResizedImageField
 
 @deconstructible
 class UploadToPathAndRename(object):
@@ -22,7 +27,7 @@ class Superuser(models.Model):
     name = models.CharField(_('Super usuario'), unique=True, max_length=40, blank=False)
     streak = models.PositiveIntegerField(_('Racha'), default=0)
     numberOfEntries = models.PositiveIntegerField(_('Numero de entradas'), default=0)
-    lastEntryDate = models.DateField(_('Ultima entrada'), default=None)
+    lastEntryDate = models.DateField(_('Ultima entrada'), blank=True, null=True)
     
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -30,9 +35,14 @@ class Superuser(models.Model):
         super(Superuser, self).save(*args, **kwargs)
         
     def addEntry(self):
-        self.numberOfEntries = self.numberOfEntries + 1
+        self.numberOfEntries =+ 1
         self.streak += 1
+        self.lastEntryDate = date.today()
     
+    def resetStreak(self):
+        if((date.today()-self.lastEntryDate).days > 1):
+            self.streak = 0
+
     def __str__(self):
         return self.name
     
@@ -42,7 +52,7 @@ class Superuser(models.Model):
     
 class Subuser(models.Model):
     name = models.CharField(_('Sub usuario'), unique=True, max_length=40, blank=False)
-    image = models.ImageField(_('Imagen'), upload_to=UploadToPathAndRename(os.path.join('media/usersPhotos')), default='media/usersPhotos/default.jpg')
+    image = ResizedImageField(_('Imagen'), size=[200,200], upload_to=UploadToPathAndRename('media/usersPhotos'), keep_meta=False, force_format='JPEG', default='media/usersPhotos/default.jpg')
     superuser = models.ForeignKey(('Superuser'), on_delete=models.CASCADE, related_name='superuser')
     
     def save(self, *args, **kwargs):
@@ -58,18 +68,19 @@ class Subuser(models.Model):
         verbose_name_plural = _('Subusers')
         
 class Entry(models.Model):
+    
     content = models.TextField(_('Contenido'), max_length=200, blank=False)
     stars = models.PositiveIntegerField(_('Estrellas'), default=1)
     shares = models.PositiveIntegerField(_('Retweets'), default=1)
-    image = models.ImageField(_('Imagen'), upload_to=UploadToPathAndRename(os.path.join('media/entriesPhotos')), blank=True, null=True)
+    image = models.ImageField(_('Imagen'), upload_to=UploadToPathAndRename('media/entriesPhotos'), blank=True, null=True)
     day = models.PositiveIntegerField(_('Numero de entrada'), default=1)
     subuser = models.ForeignKey(('Subuser'), on_delete=models.CASCADE)
     
     def save(self, *args, **kwargs):
         if not self.pk:
             modifier = self.subuser.superuser.streak*10
-            self.stars = rnd.randint(10+modifier,20+modifier)
-            self.shares = rnd.randint(6+int(modifier/2),12+int(modifier/2))
+            self.stars = randint(10+modifier,20+modifier)
+            self.shares = randint(6+int(modifier/2),12+int(modifier/2))
             self.day = self.subuser.superuser.numberOfEntries+1
             superuser = Superuser.objects.get(pk=self.subuser.superuser.pk)
             superuser.addEntry()
