@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.deconstruct import deconstructible
 from django_resized import ResizedImageField
 
+# Create your models here.
 @deconstructible
 class UploadToPathAndRename(object):
 
@@ -22,7 +23,6 @@ class UploadToPathAndRename(object):
         filename = '{}.{}'.format(uuid4().hex, ext)
         return os.path.join(self.sub_path, filename)
 
-# Create your models here.
 class Superuser(models.Model):
     name = models.CharField(_('Super usuario'), unique=True, max_length=40, blank=False)
     streak = models.PositiveIntegerField(_('Racha'), default=0)
@@ -35,7 +35,7 @@ class Superuser(models.Model):
         super(Superuser, self).save(*args, **kwargs)
         
     def addEntry(self):
-        self.numberOfEntries =+ 1
+        self.numberOfEntries += 1
         self.streak += 1
         self.lastEntryDate = date.today()
     
@@ -68,13 +68,12 @@ class Subuser(models.Model):
         verbose_name_plural = _('Subusers')
         
 class Entry(models.Model):
-    
     content = models.TextField(_('Contenido'), max_length=200, blank=False)
     stars = models.PositiveIntegerField(_('Estrellas'), default=1)
     shares = models.PositiveIntegerField(_('Retweets'), default=1)
     image = models.ImageField(_('Imagen'), upload_to=UploadToPathAndRename('media/entriesPhotos'), blank=True, null=True)
     day = models.PositiveIntegerField(_('Numero de entrada'), default=1)
-    subuser = models.ForeignKey(('Subuser'), on_delete=models.CASCADE)
+    subuser = models.ForeignKey(('Subuser'), on_delete=models.CASCADE, related_name='subuser')
     
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -82,11 +81,11 @@ class Entry(models.Model):
             self.stars = randint(10+modifier,20+modifier)
             self.shares = randint(6+int(modifier/2),12+int(modifier/2))
             self.day = self.subuser.superuser.numberOfEntries+1
-            superuser = Superuser.objects.get(pk=self.subuser.superuser.pk)
+            superuser = self.subuser.superuser
             superuser.addEntry()
             superuser.save()
         super(Entry, self).save(*args, **kwargs)
-        
+    
     def __str__(self):
         return self.content
     
