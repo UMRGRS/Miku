@@ -64,7 +64,7 @@ class EntriesTestCases(TestCase):
         self.assertEqual(entry.subuser.superuser, user)
         
 def tearDownModule():
-    print ('\nDeleting temporary files...\n')
+    print ('\nDeleting temporary files..\n')
     #shutil.rmtree(TEST_DIR, ignore_errors=True)
     try:
         shutil.rmtree(TEST_DIR)
