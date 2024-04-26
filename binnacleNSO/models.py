@@ -1,4 +1,5 @@
 import os
+import cv2
 
 from uuid import uuid4
 
@@ -10,6 +11,11 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.deconstruct import deconstructible
 from django_resized import ResizedImageField
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+usersPhotosFolder = 'media/usersPhotos'
+entriesPhotosFolder = 'media/entriesPhotos'
 
 # Create your models here.
 @deconstructible
@@ -52,7 +58,7 @@ class Superuser(models.Model):
     
 class Subuser(models.Model):
     name = models.CharField(_('Sub usuario'), unique=True, max_length=40, blank=False)
-    image = ResizedImageField(_('Imagen'), size=[200,200], upload_to=UploadToPathAndRename('media/usersPhotos'), keep_meta=False, force_format='JPEG', default='media/usersPhotos/default.jpg')
+    image = ResizedImageField(_('Imagen'), size=[200,200], upload_to=UploadToPathAndRename(usersPhotosFolder), keep_meta=False, force_format='JPEG', default='media/usersPhotos/default.jpg')
     superuser = models.ForeignKey(('Superuser'), on_delete=models.CASCADE, related_name='superuser')
     
     def save(self, *args, **kwargs):
@@ -71,7 +77,7 @@ class Entry(models.Model):
     content = models.TextField(_('Contenido'), max_length=200, blank=False)
     stars = models.PositiveIntegerField(_('Estrellas'), default=1)
     shares = models.PositiveIntegerField(_('Retweets'), default=1)
-    image = models.ImageField(_('Imagen'), upload_to=UploadToPathAndRename('media/entriesPhotos'), blank=True, null=True)
+    image = models.ImageField(_('Imagen'), upload_to=UploadToPathAndRename(entriesPhotosFolder), blank=True, null=True)
     day = models.PositiveIntegerField(_('Numero de entrada'), default=1)
     subuser = models.ForeignKey(('Subuser'), on_delete=models.CASCADE, related_name='subuser')
     
@@ -92,3 +98,12 @@ class Entry(models.Model):
     class Meta:
         verbose_name = _('Entry')
         verbose_name_plural = _('Entries')
+
+@receiver(post_save, sender=Entry)
+def modifyEntryImage(sender, instance, created, **kwargs):
+    if(created):
+        img = cv2.imread(instance.image.name)
+        filename = instance.image.name.split('/')[-1]
+        res = cv2.xphoto.oilPainting(img, 9, 2)
+        cv2.imwrite(os.path.join(entriesPhotosFolder, filename), res)
+        

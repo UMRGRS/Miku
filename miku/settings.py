@@ -30,8 +30,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'rest_framework',
     'binnacleNSO.apps.BinnaclensoConfig',
-    'tasks_scheduler.apps.TasksSchedulerConfig',
     'django_cleanup',
     'huey.contrib.djhuey',
     'django.contrib.admin',
