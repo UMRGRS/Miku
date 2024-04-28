@@ -31,6 +31,7 @@ class UploadToPathAndRename(object):
 
 class Superuser(models.Model):
     name = models.CharField(_('Super usuario'), unique=True, max_length=40, blank=False)
+    password = models.CharField(_('Contraseña'), max_length=50)
     streak = models.PositiveIntegerField(_('Racha'), default=0)
     numberOfEntries = models.PositiveIntegerField(_('Numero de entradas'), default=0)
     lastEntryDate = models.DateField(_('Ultima entrada'), blank=True, null=True)
@@ -59,7 +60,7 @@ class Superuser(models.Model):
 class Subuser(models.Model):
     name = models.CharField(_('Sub usuario'), unique=True, max_length=40, blank=False)
     image = ResizedImageField(_('Imagen'), size=[200,200], upload_to=UploadToPathAndRename(usersPhotosFolder), keep_meta=False, force_format='JPEG', default='media/usersPhotos/default.jpg')
-    superuser = models.ForeignKey(('Superuser'), on_delete=models.CASCADE, related_name='superuser')
+    superuser = models.ForeignKey(('Superuser'), on_delete=models.CASCADE)
     
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -79,7 +80,8 @@ class Entry(models.Model):
     shares = models.PositiveIntegerField(_('Retweets'), default=1)
     image = models.ImageField(_('Imagen'), upload_to=UploadToPathAndRename(entriesPhotosFolder), blank=True, null=True)
     day = models.PositiveIntegerField(_('Numero de entrada'), default=1)
-    subuser = models.ForeignKey(('Subuser'), on_delete=models.CASCADE, related_name='subuser')
+    superuser = models.ForeignKey(('Superuser'), on_delete=models.CASCADE)
+    subuser = models.ForeignKey(('Subuser'), on_delete=models.CASCADE)
     
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -101,9 +103,8 @@ class Entry(models.Model):
 
 @receiver(post_save, sender=Entry)
 def modifyEntryImage(sender, instance, created, **kwargs):
-    if(created):
+    if(created and instance.image.name != None):
         img = cv2.imread(instance.image.name)
         filename = instance.image.name.split('/')[-1]
         res = cv2.xphoto.oilPainting(img, 9, 2)
         cv2.imwrite(os.path.join(entriesPhotosFolder, filename), res)
-        
