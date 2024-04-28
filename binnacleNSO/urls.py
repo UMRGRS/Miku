@@ -2,7 +2,7 @@ from django.urls import path
 
 from . import views
 
-app_name = 'Binnacle'
+app_name = 'NSO'
 
 urlpatterns = [
    

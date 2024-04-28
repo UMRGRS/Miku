@@ -5,7 +5,7 @@ from .models import Superuser, Subuser, Entry
 #P->Post G->Get D->Delete Pa->Patch 
 
 #Superuser serializers
-class SuperuserDSerializer(serializers.ModelSerializer):
+class SuperuserGDSerializer(serializers.ModelSerializer):
     class Meta:
         model = Superuser
         fields = '__all__'
