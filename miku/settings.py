@@ -32,7 +32,6 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'rest_framework',
-    'binnacleNSO.apps.BinnaclensoConfig',
     'django_cleanup',
     'huey.contrib.djhuey',
     'django.contrib.admin',
@@ -92,10 +91,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-#Huey
-
-
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
