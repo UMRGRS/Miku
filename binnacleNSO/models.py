@@ -36,11 +36,6 @@ class Superuser(models.Model):
     numberOfEntries = models.PositiveIntegerField(_('Numero de entradas'), default=0)
     lastEntryDate = models.DateField(_('Ultima entrada'), blank=True, null=True)
     
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            self.name = '@' + self.name
-        super(Superuser, self).save(*args, **kwargs)
-        
     def addEntry(self):
         self.numberOfEntries += 1
         self.streak += 1
@@ -60,13 +55,8 @@ class Superuser(models.Model):
 class Subuser(models.Model):
     name = models.CharField(_('Sub usuario'), unique=True, max_length=40, blank=False)
     image = ResizedImageField(_('Imagen'), size=[200,200], upload_to=UploadToPathAndRename(usersPhotosFolder), keep_meta=False, force_format='JPEG', default='media/usersPhotos/default.jpg')
-    superuser = models.ForeignKey(('Superuser'), on_delete=models.CASCADE)
+    superuser = models.ForeignKey(('Superuser'), on_delete=models.CASCADE, related_name='superuser')
     
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            self.name = '@' + self.name
-        super(Subuser, self).save(*args, **kwargs)
-        
     def __str__(self):
         return self.name
     
@@ -80,8 +70,8 @@ class Entry(models.Model):
     shares = models.PositiveIntegerField(_('Retweets'), default=1)
     image = models.ImageField(_('Imagen'), upload_to=UploadToPathAndRename(entriesPhotosFolder), blank=True, null=True)
     day = models.PositiveIntegerField(_('Numero de entrada'), default=1)
-    superuser = models.ForeignKey(('Superuser'), on_delete=models.CASCADE)
-    subuser = models.ForeignKey(('Subuser'), on_delete=models.CASCADE)
+    superuser = models.ForeignKey(('Superuser'), on_delete=models.CASCADE, related_name='entry')
+    subuser = models.ForeignKey(('Subuser'), on_delete=models.CASCADE, related_name='entry')
     
     def save(self, *args, **kwargs):
         if not self.pk:

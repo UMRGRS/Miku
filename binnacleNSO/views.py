@@ -4,9 +4,11 @@ from rest_framework import status
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import permissions
 
 from .models import Superuser, Subuser, Entry
 from .serializers import SuperuserGDSerializer, SuperuserPPaSerializer, SubuserPDSerializer, SubuserGPaSerializer, EntryPSerializer, EntryGPaSerializer, EntryGallSerializer
+from .authentication import ExampleAuthentication
 
 # Create your views here.
 
@@ -43,12 +45,13 @@ class PEntry(generics.CreateAPIView):
     serializer_class = EntryPSerializer
 
 class GPaEntry(generics.RetrieveUpdateAPIView):
+    
     queryset = Entry.objects.all()
     serializer_class = EntryGPaSerializer
     
 class GallEntries(APIView):
     def get(self, request, pk):
         superuser = Superuser.objects.get(pk=pk)
-        queryset = superuser.entry_set.all()
+        queryset = superuser.entry.all()
         serializer = EntryGallSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
