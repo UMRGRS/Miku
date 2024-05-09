@@ -29,9 +29,8 @@ class UploadToPathAndRename(object):
         filename = '{}.{}'.format(uuid4().hex, ext)
         return os.path.join(self.sub_path, filename)
 
-class Superuser(models.Model):
-    name = models.CharField(_('Super usuario'), unique=True, max_length=40, blank=False)
-    password = models.CharField(_('Contraseña'), max_length=50)
+class Profile(models.Model):
+    name = models.CharField(_('Nombre'), unique=True, max_length=40, blank=False)
     streak = models.PositiveIntegerField(_('Racha'), default=0)
     numberOfEntries = models.PositiveIntegerField(_('Numero de entradas'), default=0)
     lastEntryDate = models.DateField(_('Ultima entrada'), blank=True, null=True)
@@ -49,20 +48,20 @@ class Superuser(models.Model):
         return self.name
     
     class Meta:
-        verbose_name = _('Superuser')
-        verbose_name_plural = _('Superusers')
+        verbose_name = _('Profile')
+        verbose_name_plural = _('Profiles')
     
-class Subuser(models.Model):
-    name = models.CharField(_('Sub usuario'), unique=True, max_length=40, blank=False)
+class Alias(models.Model):
+    name = models.CharField(_('Nombre'), unique=True, max_length=40, blank=False)
     image = ResizedImageField(_('Imagen'), size=[200,200], upload_to=UploadToPathAndRename(usersPhotosFolder), keep_meta=False, force_format='JPEG', default='media/usersPhotos/default.jpg')
-    superuser = models.ForeignKey(('Superuser'), on_delete=models.CASCADE, related_name='superuser')
+    profile = models.ForeignKey(('Profile'), on_delete=models.CASCADE, related_name='profile')
     
     def __str__(self):
         return self.name
     
     class Meta:
-        verbose_name = _('Subuser')
-        verbose_name_plural = _('Subusers')
+        verbose_name = _('Alias')
+        verbose_name_plural = _('Aliases')
         
 class Entry(models.Model):
     content = models.TextField(_('Contenido'), max_length=200, blank=False)
@@ -70,18 +69,18 @@ class Entry(models.Model):
     shares = models.PositiveIntegerField(_('Retweets'), default=1)
     image = models.ImageField(_('Imagen'), upload_to=UploadToPathAndRename(entriesPhotosFolder), blank=True, null=True)
     day = models.PositiveIntegerField(_('Numero de entrada'), default=1)
-    superuser = models.ForeignKey(('Superuser'), on_delete=models.CASCADE, related_name='entry')
-    subuser = models.ForeignKey(('Subuser'), on_delete=models.CASCADE, related_name='entry')
+    profile = models.ForeignKey(('Profile'), on_delete=models.CASCADE, related_name='entry')
+    alias = models.ForeignKey(('Alias'), on_delete=models.CASCADE, related_name='entry')
     
     def save(self, *args, **kwargs):
         if not self.pk:
-            modifier = self.subuser.superuser.streak*10
+            modifier = self.profile.streak*10
             self.stars = randint(10+modifier,20+modifier)
             self.shares = randint(6+int(modifier/2),12+int(modifier/2))
-            self.day = self.subuser.superuser.numberOfEntries+1
-            superuser = self.subuser.superuser
-            superuser.addEntry()
-            superuser.save()
+            self.day = self.profile.numberOfEntries+1
+            profile = self.profile
+            profile.addEntry()
+            profile.save()
         super(Entry, self).save(*args, **kwargs)
     
     def __str__(self):

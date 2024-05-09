@@ -21,7 +21,3 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('NSO/', include('binnacleNSO.urls'))
 ]
-
-urlpatterns += [
-    path('api-auth/', include('rest_framework.urls')),
-]

@@ -1,31 +1,31 @@
 from rest_framework import serializers
 
-from .models import Superuser, Subuser, Entry
+from .models import Profile, Alias, Entry
 
 #P->Post G->Get D->Delete Pa->Patch 
 
-#Superuser serializers
-class SuperuserGDSerializer(serializers.ModelSerializer):
+#Profile serializers
+class ProfileGDSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Superuser
+        model = Profile
         fields = '__all__'
 
-class SuperuserPPaSerializer(serializers.ModelSerializer):
+class ProfilePPaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Superuser
+        model = Profile
         exclude = ['streak', 'numberOfEntries', 'lastEntryDate']
         read_only_fields = ['id']
 
-#Subuser serializer
-class SubuserPDSerializer(serializers.ModelSerializer):
+#Alias serializer
+class AliasPDSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Subuser
+        model = Alias
         fields = '__all__'
 
-class SubuserGPaSerializer(serializers.ModelSerializer):
+class AliasGPaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Subuser
-        exclude = ['superuser']
+        model = Alias
+        exclude = ['profile']
         read_only_fields = ['id']
 
 #Entry serializers
@@ -37,24 +37,24 @@ class EntryPSerializer(serializers.ModelSerializer):
 class EntryGPaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Entry
-        exclude = ['stars', 'shares', 'day', 'subuser']
+        exclude = ['stars', 'shares', 'day', 'alias']
         read_only_fields = ['id']
         
-class EntryGallSerializer(serializers.ModelSerializer):
-    supUName = serializers.SerializerMethodField()
-    subUName = serializers.SerializerMethodField()
+class EntryListSerializer(serializers.ModelSerializer):
+    profileName = serializers.SerializerMethodField()
+    aliasName = serializers.SerializerMethodField()
     streak = serializers.SerializerMethodField()
     
     def get_supUName(self, obj):
-        return obj.superuser.name
+        return obj.profile.name
     
     def get_subUName(self, obj):
-        return obj.subuser.name
+        return obj.alias.name
     
     def get_streak(self, obj):
-        return obj.superuser.streak
+        return obj.profile.streak
       
     class Meta:
         model = Entry
-        exclude = ['superuser', 'subuser']
+        exclude = ['profile', 'alias']
         read_only_fields = ['id']

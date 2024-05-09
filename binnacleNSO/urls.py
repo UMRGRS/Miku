@@ -6,5 +6,5 @@ from . import views
 app_name = 'NSO'
 
 urlpatterns = [
-   path('test/<int:pk>/', views.GallEntries.as_view()),
+   
 ]

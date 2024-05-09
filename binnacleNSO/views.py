@@ -4,40 +4,38 @@ from rest_framework import status
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import permissions
 
-from .models import Superuser, Subuser, Entry
-from .serializers import SuperuserGDSerializer, SuperuserPPaSerializer, SubuserPDSerializer, SubuserGPaSerializer, EntryPSerializer, EntryGPaSerializer, EntryGallSerializer
-from .authentication import ExampleAuthentication
+from .models import Profile, Alias, Entry
+from .serializers import ProfileGDSerializer, ProfilePPaSerializer, AliasPDSerializer, AliasGPaSerializer, EntryPSerializer, EntryGPaSerializer, EntryListSerializer
 
 # Create your views here.
 
 #P->Post G->Get D->Delete Pa->Patch 
-#Superuser views
-class PSuperuser(generics.CreateAPIView):
-    queryset = Superuser.objects.all()
-    serializer_class = SuperuserPPaSerializer
+#Profile views
+class PProfile(generics.CreateAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfilePPaSerializer
 
-class PaSuperuser(generics.UpdateAPIView):
-    queryset = Superuser.objects.all()
-    serializer_class = SuperuserPPaSerializer
+class PaProfile(generics.UpdateAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfilePPaSerializer
 
-class GDSuperuser(generics.RetrieveDestroyAPIView):
-    queryset = Superuser.objects.all()
-    serializer_class = SuperuserGDSerializer
+class GDProfile(generics.RetrieveDestroyAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileGDSerializer
 
-#Subuser views
-class PSubuser(generics.CreateAPIView):
-    queryset = Subuser.objects.all()
-    serializer_class = SubuserPDSerializer
+#Alias views
+class PAlias(generics.CreateAPIView):
+    queryset = Alias.objects.all()
+    serializer_class = AliasPDSerializer
     
-class GPaSubuser(generics.RetrieveUpdateAPIView):
-    queryset = Subuser.objects.all()
-    serializer_class = SubuserGPaSerializer
+class GPaAlias(generics.RetrieveUpdateAPIView):
+    queryset = Alias.objects.all()
+    serializer_class = AliasGPaSerializer
 
-class DSubuser(generics.DestroyAPIView):
-    queryset = Subuser.objects.all()
-    serializer_class = SubuserPDSerializer
+class DAlias(generics.DestroyAPIView):
+    queryset = Alias.objects.all()
+    serializer_class = AliasPDSerializer
 
 #Entry views
 class PEntry(generics.CreateAPIView):
@@ -45,13 +43,12 @@ class PEntry(generics.CreateAPIView):
     serializer_class = EntryPSerializer
 
 class GPaEntry(generics.RetrieveUpdateAPIView):
-    
     queryset = Entry.objects.all()
     serializer_class = EntryGPaSerializer
     
 class GallEntries(APIView):
     def get(self, request, pk):
-        superuser = Superuser.objects.get(pk=pk)
-        queryset = superuser.entry.all()
-        serializer = EntryGallSerializer(queryset, many=True)
+        profile = Profile.objects.get(pk=pk)
+        queryset = profile.entry_set.all()
+        serializer = EntryListSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
