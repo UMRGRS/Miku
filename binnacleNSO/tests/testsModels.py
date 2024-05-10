@@ -8,7 +8,9 @@ from django.test import override_settings
 
 from binnacleNSO.models import Profile, Alias, Entry
 
-TEST_DIR = 'media'
+
+
+TEST_DIR = 'test_data'
 
 # Create your tests here.
 class ProfileTestCases(TestCase):
@@ -40,10 +42,10 @@ class AliasTestCases(TestCase):
         self.assertEqual(sub.name, 'UMRGRS')
         self.assertEqual(sub.image, 'media/usersPhotos/default.jpg')
     
-    @override_settings(MEDIA_ROOT=(TEST_DIR))
+    @override_settings(MEDIA_ROOT=TEST_DIR)
     def testCreateAliasNameWitPhoto(self):
         sub = Alias.objects.create(name='UMRGRS', image=SimpleUploadedFile(name='test_image.jpg', content=open('binnacleNSO/tests/testPhotos/test.jpg', 'rb').read(), content_type='image/jpeg'), profile=Profile.objects.create(name='UMRGRS'))
-        self.assertRegex(sub.image.name, '^media/usersPhotos/')
+        self.assertRegex(sub.image.name, '^usersPhotos/')
        
 class EntriesTestCases(TestCase):
     def testCreateEntryWithoutPhoto(self):
@@ -55,20 +57,20 @@ class EntriesTestCases(TestCase):
         self.assertEqual(entry.day, user.numberOfEntries)
         self.assertEqual(entry.profile, user)
     
-    @override_settings(MEDIA_ROOT=(TEST_DIR))
+    @override_settings(MEDIA_ROOT=TEST_DIR)
     def testCreateEntryWithPhoto(self):
         profile = Profile.objects.create(name='UMRGRS')
         alias = Alias.objects.create(name='UMRGRS', profile=profile)
         entry = Entry.objects.create(content='OwO', image=SimpleUploadedFile(name='test_image.jpg', content=open('binnacleNSO/tests/testPhotos/test.jpg', 'rb').read(), content_type='image/jpeg'), profile=profile, alias=alias)
         user = Profile.objects.get(name='UMRGRS')
-        self.assertRegex(entry.image.name, '^media/entriesPhotos/')
+        self.assertRegex(entry.image.name, '^entriesPhotos/')
         self.assertEqual(entry.day, user.numberOfEntries)
         self.assertEqual(entry.profile.name, user.name)
         
 def tearDownModule():
     print ('\nDeleting temporary files..\n')
-    #shutil.rmtree(TEST_DIR, ignore_errors=True)
-    #try:
-    #    shutil.rmtree(TEST_DIR)
-    #except OSError:
-    #    pass
+    shutil.rmtree(TEST_DIR, ignore_errors=True)
+    try:
+        shutil.rmtree(TEST_DIR)
+    except OSError:
+        pass

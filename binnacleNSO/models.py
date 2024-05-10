@@ -54,7 +54,7 @@ class Profile(models.Model):
     
 class Alias(models.Model):
     name = models.CharField(_('Nombre'), unique=True, max_length=40, blank=False)
-    image = ResizedImageField(_('Imagen'), size=[200,200], upload_to=UploadToPathAndRename(os.path.join(settings.MEDIA_ROOT, usersPhotosFolder)), keep_meta=False, force_format='JPEG', default='media/usersPhotos/default.jpg')
+    image = ResizedImageField(_('Imagen'), size=[200,200], upload_to=UploadToPathAndRename(usersPhotosFolder), keep_meta=False, force_format='JPEG', default='media/usersPhotos/default.jpg')
     profile = models.ForeignKey(('Profile'), on_delete=models.CASCADE, related_name='profile')
     
     def __str__(self):
@@ -68,7 +68,7 @@ class Entry(models.Model):
     content = models.TextField(_('Contenido'), max_length=200, blank=False)
     stars = models.PositiveIntegerField(_('Estrellas'), default=1)
     shares = models.PositiveIntegerField(_('Retweets'), default=1)
-    image = models.ImageField(_('Imagen'), upload_to=UploadToPathAndRename(os.path.join(settings.MEDIA_ROOT, entriesPhotosFolder)), blank=True, null=True)
+    image = models.ImageField(_('Imagen'), upload_to=UploadToPathAndRename(entriesPhotosFolder), blank=True, null=True)
     day = models.PositiveIntegerField(_('Numero de entrada'), default=1)
     profile = models.ForeignKey(('Profile'), on_delete=models.CASCADE)
     alias = models.ForeignKey(('Alias'), on_delete=models.CASCADE)
