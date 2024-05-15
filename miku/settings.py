@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
+import os
 
 from pathlib import Path
 
@@ -25,14 +26,16 @@ SECRET_KEY = 'django-insecure-*^$k0wm*xhdbd#m0pd)*-x0jk&z%@j2evs04d62-=b=q^-l%fy
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+AUTH_USER_MODEL = 'users.CustomUser'
+
 ALLOWED_HOSTS = []
 
 # Application definition
 
 INSTALLED_APPS = [
-    'binnacleNSO.apps.BinnaclensoConfig',
-    'tasks_scheduler.apps.TasksSchedulerConfig',
+    'rest_framework',
     'django_cleanup',
+    'users.apps.UsersConfig',
     'huey.contrib.djhuey',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -91,10 +94,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-#Huey
-
-
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
