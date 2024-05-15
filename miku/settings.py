@@ -26,14 +26,16 @@ SECRET_KEY = 'django-insecure-*^$k0wm*xhdbd#m0pd)*-x0jk&z%@j2evs04d62-=b=q^-l%fy
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+AUTH_USER_MODEL = 'users.CustomUser'
+
 ALLOWED_HOSTS = []
 
 # Application definition
 
 INSTALLED_APPS = [
     'rest_framework',
-    'binnacleNSO.apps.BinnaclensoConfig',
     'django_cleanup',
+    'users.apps.UsersConfig',
     'huey.contrib.djhuey',
     'django.contrib.admin',
     'django.contrib.auth',
