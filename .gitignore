@@ -6,7 +6,7 @@ venv
 #Django
 __pycache__/
 migrations/
-.sqlite3
+db.sqlite3
 
 #media
 /media
