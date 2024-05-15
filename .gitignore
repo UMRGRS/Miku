@@ -1,6 +1,9 @@
+#Python
 venv
 .venv
-
 .env
 
-.dockerignore
+#Django
+__pycache__/
+migrations/
+.sqlite3

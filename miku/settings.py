@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_cleanup',
     'users.apps.UsersConfig',
+    'binnacleNSO.apps.BinnaclensoConfig',
     'huey.contrib.djhuey',
     'django.contrib.admin',
     'django.contrib.auth',
