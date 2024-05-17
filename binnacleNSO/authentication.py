@@ -1,4 +1,4 @@
-from .models import Superuser
+from ..users.models import Superuser
 from rest_framework import authentication
 from rest_framework import exceptions
 

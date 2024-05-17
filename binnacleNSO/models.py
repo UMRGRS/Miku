@@ -15,6 +15,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
 
+AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
+
 usersPhotosFolder = 'usersPhotos'
 entriesPhotosFolder = 'entriesPhotos'
 
@@ -35,6 +37,7 @@ class Profile(models.Model):
     streak = models.PositiveIntegerField(_('Racha'), default=0)
     numberOfEntries = models.PositiveIntegerField(_('Numero de entradas'), default=0)
     lastEntryDate = models.DateField(_('Ultima entrada'), blank=True, null=True)
+    owner = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
     
     def addEntry(self):
         self.numberOfEntries += 1

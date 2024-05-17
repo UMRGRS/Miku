@@ -16,7 +16,7 @@ class CustomUserManager(BaseUserManager):
         return user
     
     def create_user(self, username, email, password):
-        user = self._create_user(username, email, True, False, False,password)
+        user = self._create_user(username, email, True, False, False, password)
         return user
     
     def create_superuser(self, username, email, password):
@@ -28,13 +28,18 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(_('Nombre de usuario'), db_index=True, max_length=20, unique=True, blank=False, null=False)
     email = models.EmailField(_('Correo electrónico'), blank=False, null=False)
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
     #image = models.ImageField(_('Imagen de perfil'), upload_to=method(), default='media(change to media root)/usersPhotos')
     
     objects = CustomUserManager()
     
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ["email"]
+    
+    def save(self, *args, **kwargs):
+        self.is_superuser = False
+        super().save(*args, **kwargs)
+        
     
     class Meta:
         verbose_name = _('User')

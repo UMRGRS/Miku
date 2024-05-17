@@ -8,7 +8,7 @@ class UserAdmin(BaseUserAdmin):
     list_display = ('username', 'email', 'is_staff', 'is_active', 'is_superuser')
     fieldsets = ((None, 
                   {'fields':('username', 'email','password')}), ('Permissions',{'fields':('is_staff', 'is_active', 'is_superuser')}),)
-    add_fieldsets = ((None, {'classes': ('wide',), 'fields': ('username', 'email', 'password')}),)
+    add_fieldsets = ((None, {'classes': ('wide',), 'fields': ('username', 'email', 'password1', 'password2')}),)
     search_fields =('username',)
     ordering = ('username',)
     filter_horizontal = ()
