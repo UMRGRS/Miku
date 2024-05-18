@@ -22,6 +22,7 @@ entriesPhotosFolder = 'entriesPhotos'
 
 # Create your models here.
 @deconstructible
+#rename image to unique id and return correct path
 class UploadToPathAndRename(object):
 
     def __init__(self, path):
@@ -54,7 +55,7 @@ class Profile(models.Model):
     class Meta:
         verbose_name = _('Profile')
         verbose_name_plural = _('Profiles')
-    
+        
 class Alias(models.Model):
     name = models.CharField(_('Nombre'), unique=True, max_length=40, blank=False)
     image = ResizedImageField(_('Imagen'), size=[200,200], upload_to=UploadToPathAndRename(usersPhotosFolder), keep_meta=False, force_format='JPEG', default='media/usersPhotos/default.jpg')
@@ -66,7 +67,7 @@ class Alias(models.Model):
     class Meta:
         verbose_name = _('Alias')
         verbose_name_plural = _('Aliases')
-        
+
 class Entry(models.Model):
     content = models.TextField(_('Contenido'), max_length=200, blank=False)
     stars = models.PositiveIntegerField(_('Estrellas'), default=1)
@@ -76,6 +77,7 @@ class Entry(models.Model):
     profile = models.ForeignKey(('Profile'), on_delete=models.CASCADE)
     alias = models.ForeignKey(('Alias'), on_delete=models.CASCADE)
     
+    #Randomize entry's stats and save it
     def save(self, *args, **kwargs):
         if not self.pk:
             modifier = self.profile.streak*10
@@ -94,6 +96,7 @@ class Entry(models.Model):
         verbose_name = _('Entry')
         verbose_name_plural = _('Entries')
 
+#Change entry image to oil painting after upload
 @receiver(post_save, sender=Entry)
 def modifyEntryImage(sender, instance, created, **kwargs):
     if(created and instance.image.name != None):
