@@ -7,29 +7,28 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 
 from binnacleNSO.models import Profile, Alias, Entry
-
-
+from users.models import CustomUser
 
 TEST_DIR = 'test_data'
 
 # Create your tests here.
 class ProfileTestCases(TestCase):
     def testModifyProfileName(self):
-        user = Profile.objects.create(name='UMRGRS')
+        user = Profile.objects.create(name='UMRGRS', owner=CustomUser.objects.create_user('owo', 'owo@gmail.com', 'wqeweqwewqeqwe'))
         self.assertEqual(user.name, 'UMRGRS')
         
     def testResetStreakFalse(self):
-        user = Profile.objects.create(name='UMRGRS', lastEntryDate=date.today(), streak=10)
+        user = Profile.objects.create(name='UMRGRS', lastEntryDate=date.today(), streak=10, owner=CustomUser.objects.create_user('owo', 'owo@gmail.com', 'wqeweqwewqeqwe'))
         user.resetStreak()
         self.assertEqual(user.streak, 10)
     
     def testResetStreakTrue(self):
-        user = Profile.objects.create(name='UMRGRS', lastEntryDate=date.today()-timedelta(days=2), streak=10)
+        user = Profile.objects.create(name='UMRGRS', lastEntryDate=date.today()-timedelta(days=2), streak=10, owner=CustomUser.objects.create_user('owo', 'owo@gmail.com', 'wqeweqwewqeqwe'))
         user.resetStreak()
         self.assertEqual(user.streak, 0)
         
     def testAddEntry(self):
-        sub = Alias.objects.create(name='UMRGRS', profile=Profile.objects.create(name='UMRGRS'))
+        sub = Alias.objects.create(name='UMRGRS', profile=Profile.objects.create(name='UMRGRS', owner=CustomUser.objects.create_user('owo', 'owo@gmail.com', 'wqeweqwewqeqwe')))
         Entry.objects.create(content='OwO', profile=Profile.objects.get(name='UMRGRS'), alias=sub)
         user = Profile.objects.get(name='UMRGRS')
         self.assertEqual(user.streak, 1)
@@ -38,18 +37,18 @@ class ProfileTestCases(TestCase):
         
 class AliasTestCases(TestCase):
     def testCreateAliasNameWithoutPhoto(self):
-        sub = Alias.objects.create(name='UMRGRS', profile=Profile.objects.create(name='UMRGRS'))
+        sub = Alias.objects.create(name='UMRGRS', profile=Profile.objects.create(name='UMRGRS', owner=CustomUser.objects.create_user('owo', 'owo@gmail.com', 'wqeweqwewqeqwe')))
         self.assertEqual(sub.name, 'UMRGRS')
         self.assertEqual(sub.image, 'media/usersPhotos/default.jpg')
     
     @override_settings(MEDIA_ROOT=TEST_DIR)
     def testCreateAliasNameWitPhoto(self):
-        sub = Alias.objects.create(name='UMRGRS', image=SimpleUploadedFile(name='test_image.jpg', content=open('binnacleNSO/tests/testPhotos/test.jpg', 'rb').read(), content_type='image/jpeg'), profile=Profile.objects.create(name='UMRGRS'))
+        sub = Alias.objects.create(name='UMRGRS', image=SimpleUploadedFile(name='test_image.jpg', content=open('binnacleNSO/tests/testPhotos/test.jpg', 'rb').read(), content_type='image/jpeg'), profile=Profile.objects.create(name='UMRGRS', owner=CustomUser.objects.create_user('owo', 'owo@gmail.com', 'wqeweqwewqeqwe')))
         self.assertRegex(sub.image.name, '^usersPhotos/')
        
 class EntriesTestCases(TestCase):
     def testCreateEntryWithoutPhoto(self):
-        profile = Profile.objects.create(name='UMRGRS')
+        profile = Profile.objects.create(name='UMRGRS', owner=CustomUser.objects.create_user('owo', 'owo@gmail.com', 'wqeweqwewqeqwe'))
         alias = Alias.objects.create(name='UMRGRS', profile=profile)
         entry = Entry.objects.create(content='OwO', profile=profile, alias=alias)
         user = Profile.objects.get(name='UMRGRS')
@@ -59,7 +58,7 @@ class EntriesTestCases(TestCase):
     
     @override_settings(MEDIA_ROOT=TEST_DIR)
     def testCreateEntryWithPhoto(self):
-        profile = Profile.objects.create(name='UMRGRS')
+        profile = Profile.objects.create(name='UMRGRS', owner=CustomUser.objects.create_user('owo', 'owo@gmail.com', 'wqeweqwewqeqwe'))
         alias = Alias.objects.create(name='UMRGRS', profile=profile)
         entry = Entry.objects.create(content='OwO', image=SimpleUploadedFile(name='test_image.jpg', content=open('binnacleNSO/tests/testPhotos/test.jpg', 'rb').read(), content_type='image/jpeg'), profile=profile, alias=alias)
         user = Profile.objects.get(name='UMRGRS')
