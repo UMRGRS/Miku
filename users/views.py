@@ -14,16 +14,14 @@ from .permissions import IsOwner
 #P->Post G->Get D->Delete Pa->Patch Pu->Put
 
 #See a way to protect post endpoints
-class PCustomUser(generics.CreateAPIView):
-    serializer_class = PCustomUserSerializer
+class PCustomUser(APIView):
     def post(self, request):
-        serializer = self.get_serializer(data=request.data)
+        serializer = PCustomUserSerializer(data=request.data)
         #Returns 400 if data isn't valid
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        response = {"Message": "User created successfully"}
-        return Response(response, status=status.HTTP_201_CREATED, headers=headers)
+        serializer.save()
+        response = {"detail": "User created successfully"}
+        return Response(response, status=status.HTTP_201_CREATED)
 
 class GDPaCustomUser(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.all()
@@ -38,4 +36,4 @@ class PuCustomUserPassword(APIView):
         serializer = PaCustomUserPasswordSerializer(user, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({"Message": "Password updated successfully"}, status=status.HTTP_200_OK)        
+        return Response({"detail": "Password updated successfully"}, status=status.HTTP_200_OK)        

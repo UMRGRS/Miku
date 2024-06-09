@@ -5,7 +5,7 @@ from .models import Profile, Alias, Entry
 #P->Post G->Get D->Delete Pa->Patch 
 
 #Profile serializers
-class ProfilePGDPaSerializer(serializers.ModelSerializer):
+class ProfileSerializer(serializers.ModelSerializer):
     owner = serializers.CharField(source='owner.username', read_only=True)
     class Meta:
         model = Profile
@@ -13,44 +13,26 @@ class ProfilePGDPaSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 #Alias serializer
-class AliasPDSerializer(serializers.ModelSerializer):
+class AliasSerializer(serializers.ModelSerializer):
+    profile = serializers.CharField(source='profile.name', read_only=True)
     class Meta:
         model = Alias
         fields = '__all__'
-
-class AliasGPaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Alias
-        exclude = ['profile']
         read_only_fields = ['id']
 
 #Entry serializers
-class EntryPSerializer(serializers.ModelSerializer):
+class EntrySerializer(serializers.ModelSerializer):
+    profile = serializers.CharField(source='profile.name', read_only=True)
+    alias = serializers.CharField(source='alias.name', read_only=True)
     class Meta:
         model = Entry
-        exclude = ['stars', 'shares', 'day']
-
-class EntryGPaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Entry
-        exclude = ['stars', 'shares', 'day', 'alias']
-        read_only_fields = ['id']
+        fields = ['content', 'image', 'profile', 'alias']
         
-class EntryListSerializer(serializers.ModelSerializer):
-    profileName = serializers.SerializerMethodField()
-    aliasName = serializers.SerializerMethodField()
-    streak = serializers.SerializerMethodField()
-    
-    def get_profileName(self, obj):
-        return obj.profile.name
-    
-    def get_aliasName(self, obj):
-        return obj.alias.name
-    
-    def get_streak(self, obj):
-        return obj.profile.streak
-      
+#Used to display the whole information about an entry
+class CompleteEntrySerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer(data='profile')
+    alias = AliasSerializer(data='alias')
     class Meta:
         model = Entry
-        exclude = ['profile', 'alias']
-        read_only_fields = ['id']
+        fields = '__all__'
+        

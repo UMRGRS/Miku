@@ -39,7 +39,7 @@ class Profile(models.Model):
     streak = models.PositiveIntegerField(_('Streak'), default=0)
     #last entry date is used to reset streak
     lastEntryDate = models.DateField(_('Last entry date'), blank=True, null=True)
-    owner = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
+    owner = models.OneToOneField(AUTH_USER_MODEL, on_delete=models.CASCADE)
     
     def addEntry(self):
         self.streak += 1
@@ -77,7 +77,7 @@ class Entry(models.Model):
     profile = models.ForeignKey(('Profile'), on_delete=models.CASCADE)
     alias = models.ForeignKey(('Alias'), on_delete=models.CASCADE)
     
-    #Randomize entry's stats and save it
+    #Randomize entry's stats and save the entry
     def save(self, *args, **kwargs):
         if not self.pk:
             modifier = self.profile.streak*10
