@@ -45,10 +45,10 @@ class EntryListSerializer(serializers.ModelSerializer):
     aliasName = serializers.SerializerMethodField()
     streak = serializers.SerializerMethodField()
     
-    def get_supUName(self, obj):
+    def get_profileName(self, obj):
         return obj.profile.name
     
-    def get_subUName(self, obj):
+    def get_aliasName(self, obj):
         return obj.alias.name
     
     def get_streak(self, obj):

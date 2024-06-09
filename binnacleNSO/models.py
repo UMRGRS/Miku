@@ -34,10 +34,10 @@ class UploadToPathAndRename(object):
         return os.path.join(self.sub_path, filename)
 
 class Profile(models.Model):
-    name = models.CharField(_('Nombre'), unique=True, max_length=40, blank=False)
-    streak = models.PositiveIntegerField(_('Racha'), default=0)
-    numberOfEntries = models.PositiveIntegerField(_('Numero de entradas'), default=0)
-    lastEntryDate = models.DateField(_('Ultima entrada'), blank=True, null=True)
+    name = models.CharField(_('Name'), unique=True, max_length=40, blank=False)
+    streak = models.PositiveIntegerField(_('Streak'), default=0)
+    numberOfEntries = models.PositiveIntegerField(_('Number of entries'), default=0)
+    lastEntryDate = models.DateField(_('Last entry'), blank=True, null=True)
     owner = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
     
     def addEntry(self):
@@ -57,8 +57,8 @@ class Profile(models.Model):
         verbose_name_plural = _('Profiles')
         
 class Alias(models.Model):
-    name = models.CharField(_('Nombre'), unique=True, max_length=40, blank=False)
-    image = ResizedImageField(_('Imagen'), size=[200,200], upload_to=UploadToPathAndRename(usersPhotosFolder), keep_meta=False, force_format='JPEG', default='media/usersPhotos/default.jpg')
+    name = models.CharField(_('Alias'), unique=True, max_length=40, blank=False)
+    image = ResizedImageField(_('Image'), size=[200,200], upload_to=UploadToPathAndRename(usersPhotosFolder), keep_meta=False, force_format='JPEG', default='media/usersPhotos/default.jpg')
     profile = models.ForeignKey(('Profile'), on_delete=models.CASCADE, related_name='profile')
     
     def __str__(self):
@@ -69,11 +69,11 @@ class Alias(models.Model):
         verbose_name_plural = _('Aliases')
 
 class Entry(models.Model):
-    content = models.TextField(_('Contenido'), max_length=200, blank=False)
-    stars = models.PositiveIntegerField(_('Estrellas'), default=1)
+    content = models.TextField(_('Content'), max_length=200, blank=False)
+    stars = models.PositiveIntegerField(_('Stars'), default=1)
     shares = models.PositiveIntegerField(_('Retweets'), default=1)
-    image = models.ImageField(_('Imagen'), upload_to=UploadToPathAndRename(entriesPhotosFolder), blank=True, null=True)
-    day = models.PositiveIntegerField(_('Numero de entrada'), default=1)
+    image = models.ImageField(_('Image'), upload_to=UploadToPathAndRename(entriesPhotosFolder), blank=True, null=True)
+    day = models.PositiveIntegerField(_('Number of entries'), default=1)
     profile = models.ForeignKey(('Profile'), on_delete=models.CASCADE)
     alias = models.ForeignKey(('Alias'), on_delete=models.CASCADE)
     
