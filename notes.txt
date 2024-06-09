@@ -1,5 +1,3 @@
-Don't forget permissions for users --> Leaving it right here owo
-
 Integrate views as much as posible to reduce code
 
 Change endpoints to eliminate verbs
@@ -9,3 +7,8 @@ Improve nesting
 Test permissions in BinnacleNSO (remember to remove IsOwner in aliases)
 
 Make an endpoint able to retrieve user info and all of its aliases
+
+#Not necessary right now
+
+->Find a way to protect post custom user endpoint
+->Restrict the number of api calls you can do

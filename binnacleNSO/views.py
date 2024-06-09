@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from .models import Profile, Alias, Entry
 from .permissions import IsOwner
-from .serializers import ProfileGDSerializer, ProfilePPaSerializer, AliasPDSerializer, AliasGPaSerializer, EntryPSerializer, EntryGPaSerializer, EntryListSerializer
+from .serializers import ProfilePGDPaSerializer, AliasPDSerializer, AliasGPaSerializer, EntryPSerializer, EntryGPaSerializer, EntryListSerializer
 
 # Create your views here.
 
@@ -16,19 +16,16 @@ from .serializers import ProfileGDSerializer, ProfilePPaSerializer, AliasPDSeria
 #Profile views
 class PProfile(generics.CreateAPIView):
     queryset = Profile.objects.all()
-    serializer_class = ProfilePPaSerializer
+    serializer_class = ProfilePGDPaSerializer
     permission_classes = [permissions.IsAuthenticated]
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
-class PaProfile(generics.UpdateAPIView):
+class GDPaProfile(generics.RetrieveUpdateDestroyAPIView):
     queryset = Profile.objects.all()
-    serializer_class = ProfilePPaSerializer
-    permission_classes = [permissions.IsAuthenticated, IsOwner]#object level permission
-
-class GDProfile(generics.RetrieveDestroyAPIView):
-    queryset = Profile.objects.all()
-    serializer_class = ProfileGDSerializer
-    permission_classes = [permissions.IsAuthenticated, IsOwner]#object level permission
-
+    serializer_class = ProfilePGDPaSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
 #Alias views
 class PAlias(generics.CreateAPIView):
     queryset = Alias.objects.all()

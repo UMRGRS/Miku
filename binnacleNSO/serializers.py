@@ -5,15 +5,11 @@ from .models import Profile, Alias, Entry
 #P->Post G->Get D->Delete Pa->Patch 
 
 #Profile serializers
-class ProfileGDSerializer(serializers.ModelSerializer):
+class ProfilePGDPaSerializer(serializers.ModelSerializer):
+    owner = serializers.CharField(source='owner.username', read_only=True)
     class Meta:
         model = Profile
-        fields = '__all__'
-
-class ProfilePPaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        exclude = ['streak', 'numberOfEntries', 'lastEntryDate']
+        exclude = ['streak', 'lastEntryDate']
         read_only_fields = ['id']
 
 #Alias serializer

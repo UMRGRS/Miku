@@ -35,13 +35,13 @@ class UploadToPathAndRename(object):
 
 class Profile(models.Model):
     name = models.CharField(_('Name'), unique=True, max_length=40, blank=False)
+    #Streak is used to scale starts and retweets of entries
     streak = models.PositiveIntegerField(_('Streak'), default=0)
-    numberOfEntries = models.PositiveIntegerField(_('Number of entries'), default=0)
-    lastEntryDate = models.DateField(_('Last entry'), blank=True, null=True)
+    #last entry date is used to reset streak
+    lastEntryDate = models.DateField(_('Last entry date'), blank=True, null=True)
     owner = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
     
     def addEntry(self):
-        self.numberOfEntries += 1
         self.streak += 1
         self.lastEntryDate = date.today()
     
@@ -73,7 +73,7 @@ class Entry(models.Model):
     stars = models.PositiveIntegerField(_('Stars'), default=1)
     shares = models.PositiveIntegerField(_('Retweets'), default=1)
     image = models.ImageField(_('Image'), upload_to=UploadToPathAndRename(entriesPhotosFolder), blank=True, null=True)
-    day = models.PositiveIntegerField(_('Number of entries'), default=1)
+    entryDate = models.DateField(_('Entry date'), auto_now_add=True, null=False, blank=False)
     profile = models.ForeignKey(('Profile'), on_delete=models.CASCADE)
     alias = models.ForeignKey(('Alias'), on_delete=models.CASCADE)
     
@@ -83,7 +83,6 @@ class Entry(models.Model):
             modifier = self.profile.streak*10
             self.stars = randint(10+modifier,20+modifier)
             self.shares = randint(6+int(modifier/2),12+int(modifier/2))
-            self.day = self.profile.numberOfEntries+1
             profile = self.profile
             profile.addEntry()
             profile.save()
