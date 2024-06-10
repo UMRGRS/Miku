@@ -39,7 +39,7 @@ class Profile(models.Model):
     streak = models.PositiveIntegerField(_('Streak'), default=0)
     #last entry date is used to reset streak
     lastEntryDate = models.DateField(_('Last entry date'), blank=True, null=True)
-    owner = models.OneToOneField(AUTH_USER_MODEL, on_delete=models.CASCADE)
+    owner = models.OneToOneField(AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile")
     
     def addEntry(self):
         self.streak += 1
@@ -59,7 +59,7 @@ class Profile(models.Model):
 class Alias(models.Model):
     name = models.CharField(_('Alias'), unique=True, max_length=40, blank=False)
     image = ResizedImageField(_('Image'), size=[200,200], upload_to=UploadToPathAndRename(usersPhotosFolder), keep_meta=False, force_format='JPEG', default='media/usersPhotos/default.jpg')
-    profile = models.ForeignKey(('Profile'), on_delete=models.CASCADE, related_name='profile')
+    profile = models.ForeignKey(('Profile'), on_delete=models.CASCADE, related_name="alias")
     
     def __str__(self):
         return self.name
@@ -74,8 +74,8 @@ class Entry(models.Model):
     shares = models.PositiveIntegerField(_('Retweets'), default=1)
     image = models.ImageField(_('Image'), upload_to=UploadToPathAndRename(entriesPhotosFolder), blank=True, null=True)
     entryDate = models.DateField(_('Entry date'), auto_now_add=True, null=False, blank=False)
-    profile = models.ForeignKey(('Profile'), on_delete=models.CASCADE)
-    alias = models.ForeignKey(('Alias'), on_delete=models.CASCADE)
+    profile = models.ForeignKey(('Profile'), on_delete=models.CASCADE, related_name="entry")
+    alias = models.ForeignKey(('Alias'), on_delete=models.CASCADE, related_name="entry")
     
     #Randomize entry's stats and save the entry
     def save(self, *args, **kwargs):

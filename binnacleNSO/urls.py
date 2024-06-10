@@ -11,6 +11,7 @@ urlpatterns = [
    #Alias end points
    path('alias/', views.PAlias.as_view()),
    path('alias/<int:pk>/', views.GDPaAlias.as_view()),
+   path('all-alias/', views.GAllAlias.as_view()),
    #Entry endpoints
    path('entry/', views.PEntry.as_view()),
    path('entry/<int:pk>/', views.PaEntry.as_view()),

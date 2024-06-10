@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from .models import Profile, Alias, Entry
-from .permissions import IsProfileOwner, IsAliasOwner, IsEntryOwner, NoProfileCreated
+from .permissions import IsProfileOwner, IsAliasOwner, IsEntryOwner, NoProfileCreated, HasLessThanTenAliases
 from .serializers import ProfileSerializer, AliasSerializer, EntrySerializer, CompleteEntrySerializer
 
 # Create your views here.
@@ -29,12 +29,13 @@ class GDPaProfile(generics.RetrieveUpdateDestroyAPIView):
 #Alias views
 class PAlias(generics.CreateAPIView):
     serializer_class = AliasSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, HasLessThanTenAliases]
     def perform_create(self, serializer):
         try:
             profile = self.request.user.profile
         except:
             return Response({"detail": "No profile found for this user"}, status=status.HTTP_404_NOT_FOUND)
+        
         serializer.save(profile=profile)
 
 class GDPaAlias(generics.RetrieveUpdateDestroyAPIView):
@@ -42,6 +43,17 @@ class GDPaAlias(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = AliasSerializer
     permission_classes = [permissions.IsAuthenticated, IsAliasOwner]
 
+class GAllAlias(APIView):
+    def get(self, request):
+        try:
+            profile = request.user.profile
+        except:
+            return Response({"detail": "No profile found for this user"}, status=status.HTTP_404_NOT_FOUND)
+        
+        aliases = profile.alias_set.all()
+        serializer = AliasSerializer(aliases, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
 #Entry views
 class PEntry(generics.CreateAPIView):
     serializer_class = EntrySerializer

@@ -15,6 +15,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 #Alias serializer
 class AliasSerializer(serializers.ModelSerializer):
     profile = serializers.CharField(source='profile.name', read_only=True)
+    image = serializers.ImageField(max_length=None, use_url=True)
     class Meta:
         model = Alias
         fields = '__all__'
@@ -33,6 +34,6 @@ class CompleteEntrySerializer(serializers.ModelSerializer):
     profile = ProfileSerializer(data='profile')
     alias = AliasSerializer(data='alias')
     class Meta:
-        model = Entry
+        model   = Entry
         fields = '__all__'
         
