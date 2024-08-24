@@ -1,0 +1,10 @@
+#Python
+venv
+
+#Django
+__pycache__/
+migrations/
+db.sqlite3
+
+#media
+/media
