@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from knox.views import LoginView as KnoxLoginView
 from rest_framework.authentication import BasicAuthentication
 
@@ -8,41 +8,54 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from users.models import CustomUser
-from . import serializers
+from .serializers import UserSerializer
 from .permissions import IsOwner
 # Create your views here.
 
 #Signup view
 class Signup(APIView):
+    serializer_class = UserSerializer
     authentication_classes = []
     permission_classes = []
     def post(self, request):
-        serializer = serializers.SignupSerializer(data=request.data)
+        serializer = UserSerializer(data=request.data)
         
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            response_data = serializer.data
+            response_data.pop('password', None)
+            return Response(response_data,status=status.HTTP_200_OK)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 #Get, update, delete view
-class User(generics.RetrieveUpdateDestroyAPIView):
+class SeeUpdateDeleteUser(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated, IsOwner]
-    serializer_class = serializers.UserSerializer
+    serializer_class = UserSerializer
     queryset = CustomUser.objects.all()
-    
-#Update password view -> No serializer
-class UpdatePassword(APIView):
-    permission_classes = [IsAuthenticated, IsOwner]
-    def put(self, request, pk):
-        user = CustomUser.objects.get(pk=pk)
+    def getUser(self, pk):
+        user =  get_object_or_404(CustomUser, pk=pk)
         self.check_object_permissions(self.request, user)
-        if 'password' not in request.data:
-            return Response({"password": "This field is required"}, status=status.HTTP_400_BAD_REQUEST)
-        user.set_password(request.data["password"])
+        return user
+    
+    def setPassword(self, user, password):
+        user.set_password(password)
         user.save()
-        return Response({"success": "password updated successfully"})
+            
+    def patch(self, request, pk):
+        user = self.getUser(pk)
+        if 'password' in  request.data:
+            self.setPassword(user, request.data.pop('password', None))
+        serializer = UserSerializer(user, data=request.data, partial=True)
         
+        if serializer.is_valid():
+            serializer.save()
+            response_data = serializer.data
+            response_data.pop('password', None)
+            return Response(response_data, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 #Overwrite knox view to only use token auth in the other views
 class LoginView(KnoxLoginView):
     authentication_classes = [BasicAuthentication]
