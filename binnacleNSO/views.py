@@ -88,8 +88,10 @@ class ListEntries(APIView):
     serializer_class = CompleteEntrySerializer
     def get(self, request):
         limit = request.GET.get('limit')
+        filter_by_entry = request.GET.get('by_entry')
+        alias_pk = request.GET.get('alias')
         if limit is None:
-            return Response({"limit": "This query parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
+            limit = -1
         else:
             try:
                 limit = int(limit)
@@ -99,6 +101,24 @@ class ListEntries(APIView):
             profile = request.user.profile
         except:
             return Response({"detail": "No profile found for this user"}, status=status.HTTP_404_NOT_FOUND)
-        entries = Entry.objects.filter(profile=profile).order_by('entryDate')[:limit]
+        
+        if filter_by_entry is not None:
+            if filter_by_entry == "True":
+                try:
+                    alias_pk = int(alias_pk)
+                except:
+                    return Response({"alias_pk": "This query parameter has to be a number"}, status=status.HTTP_400_BAD_REQUEST)
+                entries = Entry.objects.filter(profile=profile, alias=alias_pk)
+            else:
+                return Response({"by_entry": "by_entry has to be either True or blank (Case sensitive)"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            entries = Entry.objects.filter(profile=profile)
+        
+        if limit != -1:
+           entries = entries[:limit]
+           
+        if len(entries) == 0:
+            return Response({"detail": "No entries match the given query."}, status=status.HTTP_404_NOT_FOUND)
+           
         serializer = CompleteEntrySerializer(entries, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

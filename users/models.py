@@ -29,7 +29,7 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     # db_index is good for faster lookups in fields that are constantly being filter
     username = models.CharField(_('Username'), db_index=True, max_length=20, unique=True, blank=False, null=False)
-    email = models.EmailField(_('Email'), blank=False, null=False)
+    email = models.EmailField(_('Email'), unique=True, blank=False, null=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
