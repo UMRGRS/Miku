@@ -90,8 +90,12 @@ class Entry(models.Model):
             self.stars = randint(10+modifier, 20+modifier)
             self.shares = randint(6+int(modifier/2), 12+int(modifier/2))
             profile = self.profile
+            self._previous_image = None
             profile.addEntry()
             profile.save()
+        else:
+            self._previous_image = self.image.name
+            
         super(Entry, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -104,7 +108,7 @@ class Entry(models.Model):
 # Change entry image to oil painting after upload
 @receiver(post_save, sender=Entry)
 def modifyEntryImage(sender, instance, created, **kwargs):
-    if (created and instance.image.name != None):
+    if hasattr(instance, '_previous_image') and instance._previous_image != instance.image:        
         img = cv2.imread(os.path.join(settings.MEDIA_ROOT, instance.image.name))
         filename = instance.image.name.split('/')[-1]
         res = cv2.xphoto.oilPainting(img, 9, 2)

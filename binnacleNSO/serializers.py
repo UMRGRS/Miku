@@ -27,7 +27,6 @@ class AliasSerializer(serializers.ModelSerializer):
 class EntrySerializer(serializers.ModelSerializer):
     profile = serializers.CharField(source='profile.name', read_only=True)
     alias = serializers.PrimaryKeyRelatedField(queryset=Alias.objects.all())
-    image = serializers.ImageField(required=False, max_length=None, use_url=True)
 
     class Meta:
         model = Entry
