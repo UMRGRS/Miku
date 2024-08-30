@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from knox.views import LoginView as KnoxLoginView
 from rest_framework.authentication import BasicAuthentication
 
@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from users.models import CustomUser
-from .serializers import UserSerializer
+from .serializers import UserSerializer, UserProfileSerializer
 from .permissions import IsOwner
 # Create your views here.
 
@@ -24,12 +24,19 @@ class Signup(APIView):
             serializer.save()
             response_data = serializer.data
             response_data.pop('password', None)
-            return Response(response_data,status=status.HTTP_200_OK)
+            return Response(response_data, status=status.HTTP_200_OK)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-#Get, update, delete view
-class SeeUpdateDeleteUser(generics.DestroyAPIView):
+#Get view
+class SeeUser(APIView):
+    def get(self, request):
+        user = request.user
+        serializer = UserProfileSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+#Update, delete view
+class UpdateDeleteUser(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated, IsOwner]
     serializer_class = UserSerializer
     queryset = CustomUser.objects.all()

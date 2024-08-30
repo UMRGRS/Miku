@@ -1,30 +1,14 @@
-from django.shortcuts import get_object_or_404
-
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 
-from .models import Profile, Alias, Entry
-from .permissions import IsProfileOwner, IsAliasOrEntryOwner, NoProfileCreated, HasLessThanTenAliases
-from .serializers import ProfileSerializer, AliasSerializer, EntrySerializer, CompleteEntrySerializer
+from .models import Alias, Entry
+from .permissions import IsAliasOrEntryOwner, HasLessThanTenAliases
+from .serializers import AliasSerializer, EntrySerializer, CompleteEntrySerializer
 
 # Create your views here.
-
-# Profile views
-class CreateProfile(generics.CreateAPIView):
-    queryset = Profile.objects.all()
-    serializer_class = ProfileSerializer
-    permission_classes = [IsAuthenticated, NoProfileCreated]
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
-
-class SeeUpdateDeleteProfile(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Profile.objects.all()
-    serializer_class = ProfileSerializer
-    permission_classes = [IsAuthenticated, IsProfileOwner]
 
 # Alias views
 class CreateAlias(generics.CreateAPIView):
@@ -32,12 +16,7 @@ class CreateAlias(generics.CreateAPIView):
     permission_classes = [IsAuthenticated, HasLessThanTenAliases]
 
     def perform_create(self, serializer):
-        try:
-            profile = self.request.user.profile
-        except:
-            return Response({"detail": "You need to have a profile to create aliases"}, status=status.HTTP_404_NOT_FOUND)
-
-        serializer.save(profile=profile)
+        serializer.save(owner=self.request.user)
 
 class SeeUpdateDeleteAlias(generics.RetrieveUpdateDestroyAPIView):
     queryset = Alias.objects.all()
@@ -47,12 +26,11 @@ class SeeUpdateDeleteAlias(generics.RetrieveUpdateDestroyAPIView):
 class ListAlias(APIView):
     serializer_class = AliasSerializer
     def get(self, request):
-        try:
-            profile = request.user.profile
-        except:
-            return Response({"detail": "You need to have a profile to see aliases"}, status=status.HTTP_404_NOT_FOUND)
-
-        aliases = profile.alias.all()
+        aliases = request.user.alias.all()
+        
+        if len(aliases) == 0:
+            return Response({"detail": "No aliases found for the current user."}, status=status.HTTP_404_NOT_FOUND)
+        
         serializer = AliasSerializer(aliases, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -61,17 +39,8 @@ class CreateEntry(generics.CreateAPIView):
     serializer_class = EntrySerializer
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
-        try:
-            profile = request.user.profile
-        except:
-            return Response({"detail": "No profile found for this user"}, status=status.HTTP_404_NOT_FOUND)
-        serializer = EntrySerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(profile=profile)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
-        return Response(serializer.errors, status=status.HTTP_201_CREATED)
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 class UpdateEntry(generics.UpdateAPIView):
     queryset = Entry.objects.all()
@@ -97,22 +66,18 @@ class ListEntries(APIView):
                 limit = int(limit)
             except:
                 return Response({"limit": "This query parameter has to be a number"}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            profile = request.user.profile
-        except:
-            return Response({"detail": "No profile found for this user"}, status=status.HTTP_404_NOT_FOUND)
-        
+
         if filter_by_entry is not None:
             if filter_by_entry == "True":
                 try:
                     alias_pk = int(alias_pk)
                 except:
-                    return Response({"alias_pk": "This query parameter has to be a number"}, status=status.HTTP_400_BAD_REQUEST)
-                entries = Entry.objects.filter(profile=profile, alias=alias_pk)
+                    return Response({"alias": "This query parameter can't be null when filtering by alias and has to be a number"}, status=status.HTTP_400_BAD_REQUEST)
+                entries = Entry.objects.filter(owner=request.user, alias=alias_pk)
             else:
-                return Response({"by_entry": "by_entry has to be either True or blank (Case sensitive)"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"by_entry": "This query parameter has to be either True or blank (Case sensitive)"}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            entries = Entry.objects.filter(profile=profile)
+            entries = Entry.objects.filter(owner=request.user)
         
         if limit != -1:
            entries = entries[:limit]

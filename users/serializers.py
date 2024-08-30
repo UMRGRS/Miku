@@ -11,3 +11,10 @@ class UserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['id', 'username', 'email', 'password']
         read_only_fields = ['id']
+        
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'email', 'streak', 'lastEntryDate']
+        read_only_fields = ['id']

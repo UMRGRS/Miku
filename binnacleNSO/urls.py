@@ -4,10 +4,7 @@ from . import views
 app_name = 'binnacleNSO'
 
 urlpatterns = [
-    # Profile end points
-    path('profile/', views.CreateProfile.as_view()),
-    path('profile/<int:pk>/', views.SeeUpdateDeleteProfile.as_view()),
-    # Alias end points
+    # Alias endpoints
     path('alias/', views.CreateAlias.as_view()),
     path('alias/<int:pk>/', views.SeeUpdateDeleteAlias.as_view()),
     path('alias-list/', views.ListAlias.as_view()),
