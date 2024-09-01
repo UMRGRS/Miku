@@ -12,5 +12,6 @@ urlpatterns = [
     path('entry/', views.CreateEntry.as_view()),
     path('entry/<int:pk>/', views.UpdateEntry.as_view()),
     path('entry-detail/<int:pk>/', views.SeeDeleteEntry.as_view()),
-    path('entry-list/', views.ListEntries.as_view()),
+    path('entry-user-list', views.ListUserEntries.as_view()),
+    path('entry-alias-list', views.ListAliasEntries.as_view()),
 ]

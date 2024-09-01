@@ -3,11 +3,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 
 from .models import Alias, Entry
 from .permissions import IsAliasOrEntryOwner, HasLessThanTenAliases
 from .serializers import AliasSerializer, EntrySerializer, CompleteEntrySerializer
-
+from .pagination import EntriesResultsSetPagination
 # Create your views here.
 
 # Alias views
@@ -52,38 +53,24 @@ class SeeDeleteEntry(generics.RetrieveDestroyAPIView):
     serializer_class = CompleteEntrySerializer
     permission_classes = [IsAuthenticated, IsAliasOrEntryOwner]
 
-class ListEntries(APIView):
-    permission_classes = [IsAuthenticated, IsAliasOrEntryOwner]
+class ListUserEntries(generics.ListAPIView):
     serializer_class = CompleteEntrySerializer
-    def get(self, request):
-        limit = request.GET.get('limit')
-        filter_by_entry = request.GET.get('by_entry')
-        alias_pk = request.GET.get('alias')
-        if limit is None:
-            limit = -1
-        else:
-            try:
-                limit = int(limit)
-            except:
-                return Response({"limit": "This query parameter has to be a number"}, status=status.HTTP_400_BAD_REQUEST)
+    pagination_class = EntriesResultsSetPagination
+    def get_queryset(self):
+        user = self.request.user
+        return Entry.objects.filter(owner=user)
 
-        if filter_by_entry is not None:
-            if filter_by_entry == "True":
-                try:
-                    alias_pk = int(alias_pk)
-                except:
-                    return Response({"alias": "This query parameter can't be null when filtering by alias and has to be a number"}, status=status.HTTP_400_BAD_REQUEST)
-                entries = Entry.objects.filter(owner=request.user, alias=alias_pk)
-            else:
-                return Response({"by_entry": "This query parameter has to be either True or blank (Case sensitive)"}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            entries = Entry.objects.filter(owner=request.user)
+class ListAliasEntries(generics.ListAPIView):
+    serializer_class = CompleteEntrySerializer
+    pagination_class = EntriesResultsSetPagination
+    def get_queryset(self):
+        alias_pk = self.request.query_params.get("alias_pk", None)
+        if alias_pk is None:
+            raise ValidationError(detail='alias_pk is required')
         
-        if limit != -1:
-           entries = entries[:limit]
-           
-        if len(entries) == 0:
-            return Response({"detail": "No entries match the given query."}, status=status.HTTP_404_NOT_FOUND)
-           
-        serializer = CompleteEntrySerializer(entries, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        try:
+            alias_pk = int(alias_pk)
+        except:
+            raise ValidationError(detail='alias_pk should be a number')
+        
+        return Entry.objects.filter(alias=alias_pk)

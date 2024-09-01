@@ -9,7 +9,7 @@ class IsAliasOrEntryOwner(permissions.BasePermission):
 class HasLessThanTenAliases(permissions.BasePermission):
     def has_permission(self, request, view):
         if len(request.user.alias.all())>=10:
-            self.message = "You can't create more than 10 aliases"
+            self.message = "The same user can't create more than 10 aliases"
             return False
         else:
             return True
