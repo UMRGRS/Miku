@@ -7,6 +7,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
+from drf_spectacular.utils import extend_schema
+
 from users.models import CustomUser
 from .serializers import UserSerializer, UserProfileSerializer
 from .permissions import IsOwner
@@ -17,6 +19,9 @@ class Signup(APIView):
     serializer_class = UserSerializer
     authentication_classes = []
     permission_classes = []
+    @extend_schema(
+        description='Create a new user to authenticate into the API'
+    )
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         
@@ -30,12 +35,19 @@ class Signup(APIView):
     
 #Get view
 class SeeUser(APIView):
+    @extend_schema(
+        responses={200: UserProfileSerializer},
+        description='Get basic user data with current token'
+    )
     def get(self, request):
         user = request.user
         serializer = UserProfileSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 #Update, delete view
+@extend_schema(
+    description='Delete user via ID'
+)
 class UpdateDeleteUser(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated, IsOwner]
     serializer_class = UserSerializer
@@ -48,7 +60,10 @@ class UpdateDeleteUser(generics.DestroyAPIView):
     def setPassword(self, user, password):
         user.set_password(password)
         user.save()
-            
+    
+    @extend_schema(
+        description='Update user data via ID'
+    )
     def patch(self, request, pk):
         user = self.getUser(pk)
         if 'password' in  request.data:
@@ -64,5 +79,8 @@ class UpdateDeleteUser(generics.DestroyAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 #Overwrite knox view to only use token auth in the other views
+@extend_schema(
+    description='Get auth token with basic auth'
+)
 class LoginView(KnoxLoginView):
     authentication_classes = [BasicAuthentication]
