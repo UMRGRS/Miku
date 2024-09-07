@@ -68,7 +68,7 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'A group of API for personal use',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
-    # OTHER SETTINGS
+    'COMPONENT_SPLIT_REQUEST': True
 }
 
 MIDDLEWARE = [

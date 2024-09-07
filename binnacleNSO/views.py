@@ -49,7 +49,7 @@ class ListAlias(APIView):
 
 # Entry views
 @extend_schema(
-    description='Create a new entry'
+    description='Create a new entry',
 )
 class CreateEntry(generics.CreateAPIView):
     serializer_class = EntrySerializer
