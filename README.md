@@ -25,12 +25,18 @@ Install project dependencies:
 
     $ pip install -r requirements.txt
     
-    
 Then simply apply the migrations:
 
     $ python manage.py migrate
-    
+
+This projects requires you to have Redis installed and running on port 6379, you can install it here:
+
+https://redis.io/docs/latest/get-started/
 
 You can now run the development server:
 
     $ python manage.py runserver
+
+Then start huey to run scheduled tasks:
+
+    $ python manage.py run_huey
