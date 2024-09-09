@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_cleanup',
     'knox',
+    'huey.contrib.djhuey',
     'drf_spectacular',
     'binnacleNSO.apps.BinnaclensoConfig',
     'users.apps.UsersConfig',
