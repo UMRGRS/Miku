@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .models import Alias, Entry
-from users.serializers import UserProfileSerializer
+from apps.users.serializers import UserProfileSerializer
 
 # Alias serializer
 class AliasSerializer(serializers.ModelSerializer):
