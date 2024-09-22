@@ -111,7 +111,6 @@ class ListAliasEntries(generics.ListAPIView):
         alias_pk = self.request.query_params.get("alias_pk", None)
         if alias_pk is None:
             raise ValidationError(detail='alias_pk is required')
-        
         try:
             alias_pk = int(alias_pk)
         except:

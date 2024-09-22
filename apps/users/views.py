@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from drf_spectacular.utils import extend_schema
 
-from users.models import CustomUser
+from apps.users.models import CustomUser
 from .serializers import UserSerializer, UserProfileSerializer
 from .permissions import IsOwner
 # Create your views here.
