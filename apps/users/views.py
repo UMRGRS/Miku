@@ -1,7 +1,8 @@
 from django.shortcuts import get_object_or_404
-from knox.views import LoginView as KnoxLoginView
-from rest_framework.authentication import BasicAuthentication
 
+from knox.views import LoginView as KnoxLoginView
+
+from rest_framework.authentication import BasicAuthentication
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -48,6 +49,7 @@ class SeeUser(APIView):
 @extend_schema(
     description='Delete user via ID'
 )
+
 class UpdateDeleteUser(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated, IsOwner]
     serializer_class = UserSerializer
@@ -67,7 +69,9 @@ class UpdateDeleteUser(generics.DestroyAPIView):
     def patch(self, request, pk):
         user = self.getUser(pk)
         if 'password' in  request.data:
-            self.setPassword(user, request.data.pop('password', None))
+            request.data._mutable = True
+            self.setPassword(user, request.data.pop('password', None)[0])
+            request.data._mutable = False
         serializer = UserSerializer(user, data=request.data, partial=True)
         
         if serializer.is_valid():
