@@ -67,7 +67,9 @@ class UpdateDeleteUser(generics.DestroyAPIView):
     def patch(self, request, pk):
         user = self.getUser(pk)
         if 'password' in  request.data:
-            self.setPassword(user, request.data.pop('password', None))
+            request.data._mutable = True
+            self.setPassword(user, request.data.pop('password', None)[0])
+            request.data._mutable = False
         serializer = UserSerializer(user, data=request.data, partial=True)
         
         if serializer.is_valid():
